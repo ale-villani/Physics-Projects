@@ -46,7 +46,8 @@ M = k_coulomb * area / dist_matrix
 np.fill_diagonal(M, k_coulomb * (4 * np.log(1 + np.sqrt(2))) * dx)
 
 
-# To estimate the charge distribution, setting the potential of each square to V0 (uniform because conductor is in equilibrium)
+# To estimate the charge distribution, setting the potential of each square to V0 
+# (uniform because conductor is in equilibrium)
 V_vec = np.full(N, V0)
 
 # Solve for the total charges q on each pixel
@@ -82,4 +83,52 @@ plt.title("Charge as a function of radius $r$")
 plt.xlabel("r [m]")
 plt.ylabel(r"$\sigma$ [C/m$^2$]")
 plt.grid(True, alpha=0.3)
+plt.show()
+
+#Calculating the potential in space
+def V (x, y, z):
+    V_tot = 0
+    for i in range (N):
+        r_i = np.sqrt((x - X_disco[i])**2 + (y - Y_disco[i])**2 + z**2)
+        V_tot += k_coulomb * Sigma[i] * area / r_i
+    return V_tot
+
+# Plotting V(z) in a perpendicular plane above the center of the disk
+# Create a heatmap of V(x, z) at y=0
+x_space = np.linspace(-4, 4, 100)
+z_space = np.linspace(-4, 4, 100)
+X_plane, Z_plane = np.meshgrid(x_space, z_space)
+Y_plane = np.zeros_like(X_plane)
+V_plane = V(X_plane, Y_plane, Z_plane)
+plt.figure(figsize=(10, 8))
+plt.imshow(V_plane, origin='lower', extent=[-2*R, 2*R, 0, 2*R], cmap='viridis', aspect='auto')
+plt.colorbar(label='Potential V [V]')
+plt.title('Electric Potential V(x, z) above the Center of the Disk (y=0)')
+plt.xlabel('x [m]')
+plt.ylabel('z [m]')
+plt.show()  
+
+# Plotting the electric field (streamplot) in the same plane
+Ex = np.zeros_like(X_plane)
+Ez = np.zeros_like(Z_plane)
+
+for i in range(X_plane.shape[0]):
+    for j in range(X_plane.shape[1]):
+        x1, z1 = X_plane[i, j], Z_plane[i, j]
+        rx = x1 - X_disco
+        ry = - Y_disco # y_p = 0
+        rz = z1
+        r_mag = np.sqrt(rx**2 + ry**2 + rz**2)
+
+        common = k_coulomb * Sigma / r_mag**3
+        Ex[i, j] = np.sum(common * rx)
+        Ez[i, j] = np.sum(common * rz)
+
+# Electrostatic field lines
+plt.figure(figsize=(12, 8))
+quiv = plt.quiver(X_plane, Z_plane, Ex, Ez, color='C0', angles='xy', scale_units='xy')
+plt.plot([-R, R], [0, 0], color='C1', linewidth=4, label='Disco Conduttore')
+plt.title('Electrostatic Field Distribution (XZ plane)')
+plt.xlabel('x [m]')
+plt.ylabel('z [m]')
 plt.show()

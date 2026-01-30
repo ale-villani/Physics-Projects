@@ -21,15 +21,15 @@ X, Y = np.meshgrid(x, y)
 # Mask: select only points within the disk
 R_dist = np.sqrt(X**2 + Y**2)
 mask = R_dist < R  
-X_disk = X[mask]
-Y_disk = Y[mask]
-N = len(X_disk) # Number of effective unknowns
+X_plate = X[mask]
+Y_plate = Y[mask]
+N = len(X_plate) # Number of effective unknowns
 
 print(f"Solving for {N} elements...")
 
 # Calculate distances between squares using the distance matrix
-x_vec = X_disk[:, np.newaxis] # Column vector
-y_vec = Y_disk[:, np.newaxis]
+x_vec = X_plate[:, np.newaxis] # Column vector
+y_vec = Y_plate[:, np.newaxis]
 dist_sq = (x_vec - x_vec.T)**2 + (y_vec - y_vec.T)**2 
 dist_matrix = np.sqrt(dist_sq) # Distance matrix r_ij
 
@@ -74,8 +74,8 @@ plt.show()
 
 # Plot sigma(r)
 # Taking points close to y=0
-radial_cells_mask = (np.abs(Y_disk) < dx) & (X_disk > 0)
-r = X_disk[radial_cells_mask]
+radial_cells_mask = (np.abs(Y_plate) < dx) & (X_plate > 0)
+r = X_plate[radial_cells_mask]
 sigma_radial = Sigma[radial_cells_mask]
 plt.figure(figsize=(8, 4))
 plt.scatter(r, sigma_radial, s=10, c='red')
@@ -89,7 +89,7 @@ plt.show()
 def V (x, y, z):
     V_tot = 0
     for i in range (N):
-        r_i = np.sqrt((x - X_disk[i])**2 + (y - Y_disk[i])**2 + z**2)
+        r_i = np.sqrt((x - X_plate[i])**2 + (y - Y_plate[i])**2 + z**2)
         V_tot += k_coulomb * Sigma[i] * area / r_i
     return V_tot
 
@@ -116,8 +116,8 @@ Ez = np.zeros_like(Z_plane)
 for i in range(X_plane.shape[0]):
     for j in range(X_plane.shape[1]):
         x1, z1 = X_plane[i, j], Z_plane[i, j]
-        rx = x1 - X_disk
-        ry = - Y_disk
+        rx = x1 - X_plate
+        ry = - Y_plate
         rz = z1
         r_mag = np.sqrt(rx**2 + ry**2 + rz**2)
 
@@ -128,7 +128,7 @@ for i in range(X_plane.shape[0]):
 # Electric field lines
 plt.figure(figsize=(12, 8))
 quiv = plt.quiver(X_plane, Z_plane, Ex, Ez, color='C0', angles='xy', scale_units='xy')
-plt.plot([-R, R], [0, 0], color='C1', linewidth=4, label='Disco Conduttore')
+plt.plot([-R, R], [0, 0], color='black', linewidth=4, label='Conducting Plate')
 plt.title('Electrostatic Field Distribution (XZ plane)')
 plt.xlabel('x [m]')
 plt.ylabel('z [m]')

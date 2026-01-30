@@ -94,12 +94,13 @@ def V (x, y, z):
     return V_tot
 
 # Plotting V(z) in a perpendicular plane above the center of the disk
-# Create a heatmap of V(x, z) at y=0
 x_space = np.linspace(-4, 4, 100)
 z_space = np.linspace(-4, 4, 100)
 X_plane, Z_plane = np.meshgrid(x_space, z_space)
 Y_plane = np.zeros_like(X_plane)
 V_plane = V(X_plane, Y_plane, Z_plane)
+
+# Creating a heatmap of V(x, z) at y=0
 plt.figure(figsize=(10, 8))
 plt.imshow(V_plane, origin='lower', extent=[-2*R, 2*R, 0, 2*R], cmap='viridis', aspect='auto')
 plt.colorbar(label='Potential V [V]')
@@ -108,7 +109,7 @@ plt.xlabel('x [m]')
 plt.ylabel('z [m]')
 plt.show()  
 
-# Plotting the electric field (streamplot) in the same plane
+# Computing the electric field in the same plane
 Ex = np.zeros_like(X_plane)
 Ez = np.zeros_like(Z_plane)
 
@@ -124,7 +125,7 @@ for i in range(X_plane.shape[0]):
         Ex[i, j] = np.sum(common * rx)
         Ez[i, j] = np.sum(common * rz)
 
-# Electrostatic field lines
+# Electric field lines
 plt.figure(figsize=(12, 8))
 quiv = plt.quiver(X_plane, Z_plane, Ex, Ez, color='C0', angles='xy', scale_units='xy')
 plt.plot([-R, R], [0, 0], color='C1', linewidth=4, label='Disco Conduttore')
